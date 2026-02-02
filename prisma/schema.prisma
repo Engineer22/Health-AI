@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  role      Role     @default(PATIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  patient   Patient?
+  doctor    Doctor?
+}
+
+model Patient {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String       @unique @db.ObjectId
+  user        User         @relation(fields: [userId], references: [id])
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime
+  gender      Gender
+  phone       String?
+  address     String?
+  healthRecords HealthRecord[]
+  appointments Appointment[]
+  neurologicalAssessments NeurologicalAssessment[]
+  oncologyAssessments OncologyAssessment[]
+  immunologyProfiles ImmunologyProfile[]
+  pediatricAssessments PediatricAssessment[]
+  geriatricAssessments GeriatricAssessment[]
+  brainScans BrainScan[]
+  tumorMarkers TumorMarker[]
+  pathologyReports PathologyReport[]
+  riskAssessments RiskAssessment[]
+  drugs Drug[]
+  medicationDosings MedicationDosing[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Doctor {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String       @unique @db.ObjectId
+  user        User         @relation(fields: [userId], references: [id])
+  firstName   String
+  lastName    String
+  specialization String
+  phone       String?
+  appointments Appointment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model HealthRecord {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId   String   @db.ObjectId
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  type        RecordType
+  value       Float
+  unit        String
+  notes       String?
+  recordedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Appointment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId   String   @db.ObjectId
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  doctorId    String   @db.ObjectId
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
+  date        DateTime
+  status      AppointmentStatus @default(SCHEDULED)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  DOCTOR
+  PATIENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum RecordType {
+  BLOOD_PRESSURE
+  HEART_RATE
+  BLOOD_SUGAR
+  WEIGHT
+  HEIGHT
+  TEMPERATURE
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model NeurologicalAssessment {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId           String   @db.ObjectId
+  cognitiveScores     Json
+  brainActivityData   Json
+  symptoms            Json
+  recommendations     Json
+  progressionRisk     String
+  timestamp           DateTime @default(now())
+  patient             Patient  @relation(fields: [patientId], references: [id])
+}
+
+model OncologyAssessment {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId           String   @db.ObjectId
+  cancerType          String
+  stage               String
+  tumorData          Json
+  treatmentPlan       Json
+  survivalMetrics     Json
+  timestamp           DateTime @default(now())
+  patient             Patient  @relation(fields: [patientId], references: [id])
+}
+
+model ImmunologyProfile {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId           String   @db.ObjectId
+  immuneStatus        Json
+  autoimmunityData    Json
+  allergies           Json
+  recommendations     Json
+  timestamp           DateTime @default(now())
+  patient             Patient  @relation(fields: [patientId], references: [id])
+}
+
+model PediatricAssessment {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId             String   @db.ObjectId
+  growthMetrics         Json
+  developmentalData     Json
+  nutritionStatus       Json
+  vaccinations          Json
+  recommendations       Json
+  timestamp             DateTime @default(now())
+  patient               Patient  @relation(fields: [patientId], references: [id])
+}
+
+model GeriatricAssessment {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId             String   @db.ObjectId
+  functionalStatus      Json
+  cognitiveStatus       Json
+  fallRiskData          Json
+  medications           Json
+  careRecommendations   Json
+  timestamp             DateTime @default(now())
+  patient               Patient  @relation(fields: [patientId], references: [id])
+}
+
+model BrainScan {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId     String   @db.ObjectId
+  type          String
+  date          DateTime
+  findings      String
+  abnormalities String[]
+  imageUrl      String
+  patient       Patient  @relation(fields: [patientId], references: [id])
+}
+
+model TumorMarker {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId      String   @db.ObjectId
+  name           String
+  value          Float
+  unit           String
+  referenceRange String
+  trend          String
+  timestamp      DateTime
+  patient        Patient  @relation(fields: [patientId], references: [id])
+}
+
+model PathologyReport {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId     String   @db.ObjectId
+  type          String
+  date          DateTime
+  findings      Json
+  diagnosis     String
+  patient       Patient  @relation(fields: [patientId], references: [id])
+}
+
+model RiskAssessment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId String   @db.ObjectId
+  type      String   // FRAMINGHAM, CHADS2VASC, SOFA, MELD, etc.
+  score     Float
+  details   Json
+  timestamp DateTime @default(now())
+  patient   Patient  @relation(fields: [patientId], references: [id])
+}
+
+model MedicationDosing {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId String   @db.ObjectId
+  drugId    String   @db.ObjectId
+  dosing    Json
+  timestamp DateTime @default(now())
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  drug      Drug     @relation(fields: [drugId], references: [id])
+}
+
+model Drug {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  standardDose    Json
+  adjustments     Json
+  contraindications Json
+  interactions    Json
+  monitoring      Json
+  dosings        MedicationDosing[]
+}
