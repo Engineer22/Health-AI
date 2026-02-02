@@ -1,69 +1,108 @@
-# Welcome to your Lovable project
+# Hea.lth App Backend
 
-## Project info
+A modern healthcare management system backend built with Node.js, Express, and MongoDB.
 
-**URL**: https://lovable.dev/projects/7cdb43e8-af82-4303-a203-b0f8a427a3b0
+## Features
 
-## How can I edit this code?
+- User authentication and authorization
+- Patient health records management
+- Appointment scheduling
+- Doctor-patient relationship management
+- Role-based access control (Admin, Doctor, Patient)
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+- Node.js (v14 or higher)
+- MongoDB
+- npm or yarn
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7cdb43e8-af82-4303-a203-b0f8a427a3b0) and start prompting.
+## Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the root directory with the following variables:
+   ```
+   PORT=3000
+   DATABASE_URL="mongodb://localhost:27017/health-app"
+   JWT_SECRET="your-super-secret-key"
+   NODE_ENV="development"
+   ```
+4. Initialize the database:
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-**Use your preferred IDE**
+## Running the Application
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Development mode:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Production mode:
+```bash
+npm start
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## API Endpoints
 
-**Use GitHub Codespaces**
+### Authentication
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/me` - Get current user info
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Patients
+- `GET /api/patients/health-records` - Get patient's health records
+- `POST /api/patients/health-records` - Add new health record
+- `GET /api/patients/appointments` - Get patient's appointments
+- `POST /api/patients/appointments` - Create new appointment
+- `PATCH /api/patients/appointments/:id` - Update appointment status
 
-## What technologies are used for this project?
+### Doctors
+- `GET /api/doctors/patients` - Get doctor's patients
+- `GET /api/doctors/appointments` - Get doctor's appointments
+- `GET /api/doctors/patients/:patientId/health-records` - Get patient's health records
+- `POST /api/doctors/patients/:patientId/health-records` - Add health record for a patient
+- `PATCH /api/doctors/appointments/:id` - Update appointment status
 
-This project is built with .
+## Security
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- JWT-based authentication
+- Role-based access control
+- Password hashing with bcrypt
+- Helmet for security headers
+- CORS enabled
 
-## How can I deploy this project?
+## Database Schema
 
-Simply open [Lovable](https://lovable.dev/projects/7cdb43e8-af82-4303-a203-b0f8a427a3b0) and click on Share -> Publish.
+The application uses Prisma with MongoDB. The schema includes models for:
+- Users
+- Patients
+- Doctors
+- Health Records
+- Appointments
 
-## I want to use a custom domain - is that possible?
+## Error Handling
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+The API includes comprehensive error handling for:
+- Authentication errors
+- Authorization errors
+- Validation errors
+- Database errors
+- Server errors
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
+
+## License
+
+This project is licensed under the MIT License. 
